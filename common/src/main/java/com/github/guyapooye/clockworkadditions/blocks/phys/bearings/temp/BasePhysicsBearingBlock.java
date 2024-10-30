@@ -1,4 +1,4 @@
-package com.github.guyapooye.clockworkadditions.blocks.phys.temp;
+package com.github.guyapooye.clockworkadditions.blocks.phys.bearings.temp;
 
 import com.github.guyapooye.clockworkadditions.registries.BlockEntityRegistry;
 import com.simibubi.create.AllShapes;

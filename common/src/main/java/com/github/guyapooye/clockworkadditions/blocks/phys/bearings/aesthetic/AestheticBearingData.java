@@ -1,19 +1,19 @@
-package com.github.guyapooye.clockworkadditions.blocks.phys.helicopter;
+package com.github.guyapooye.clockworkadditions.blocks.phys.bearings.aesthetic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.github.guyapooye.clockworkadditions.blocks.phys.PhysData;
+import com.github.guyapooye.clockworkadditions.forces.PhysData;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3dc;
 import org.valkyrienskies.core.apigame.constraints.VSAttachmentConstraint;
 import org.valkyrienskies.core.apigame.constraints.VSConstraintAndId;
+import com.github.guyapooye.clockworkadditions.blocks.phys.bearings.aesthetic.AestheticBearingData.AlternatorBearingUpdateData;
 import org.valkyrienskies.core.apigame.constraints.VSHingeOrientationConstraint;
-import com.github.guyapooye.clockworkadditions.blocks.phys.helicopter.HelicopterBearingData.AlternatorBearingUpdateData;
 
 @Getter
 @Setter
-public class HelicopterBearingData implements PhysData<AlternatorBearingUpdateData> {
+public class AestheticBearingData implements PhysData<AlternatorBearingUpdateData> {
     @Nullable
     private final Vector3dc bearingPosition;
     @Nullable
@@ -29,31 +29,32 @@ public class HelicopterBearingData implements PhysData<AlternatorBearingUpdateDa
     @JsonIgnore
     @Nullable
     private Integer hingeId;
-    /*why would you ever use this bruh*/
+    /*Don't use. Only for jackson*/
     @Deprecated
-    public HelicopterBearingData() {
+    public AestheticBearingData() {
 
         this.bearingPosition = null;
         this.bearingAxis = null;
         this.shiptraptionId = -1L;
     }
-    public HelicopterBearingData(@Nullable Vector3dc bearingPosition,
-                                 @Nullable Vector3dc bearingAxis,
-                                 long shiptraptionID,
-                                 VSConstraintAndId attachConstraint,
-                                 VSConstraintAndId hingeConstraint) {
+    AestheticBearingData(@Nullable Vector3dc bearingPosition,
+                                @Nullable Vector3dc bearingAxis,
+                                long shiptraptionID,
+                                VSConstraintAndId attachConstraint,
+                                VSConstraintAndId hingeConstraint
+    ) {
         this.bearingPosition = bearingPosition;
         this.bearingAxis = bearingAxis;
         this.shiptraptionId = shiptraptionID;
         this.attachConstraint = (VSAttachmentConstraint) attachConstraint.getVsConstraint();
         this.attachId = attachConstraint.getConstraintId();
         this.hingeConstraint = (VSHingeOrientationConstraint) hingeConstraint.getVsConstraint();
-        this.hingeId = hingeConstraint.getConstraintId();
+
     }
     public final void updateWith(AlternatorBearingUpdateData updateData) {
         attachConstraint = updateData.attachConstraint;
-        hingeConstraint = updateData.hingeConstraint;
         attachId = updateData.attachId;
+        hingeConstraint = updateData.hingeConstraint;
         hingeId = updateData.hingeId;
     }
 

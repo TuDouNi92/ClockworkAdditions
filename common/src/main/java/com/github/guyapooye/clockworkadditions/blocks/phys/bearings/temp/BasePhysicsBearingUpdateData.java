@@ -1,4 +1,4 @@
-package com.github.guyapooye.clockworkadditions.blocks.phys.temp;
+package com.github.guyapooye.clockworkadditions.blocks.phys.bearings.temp;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

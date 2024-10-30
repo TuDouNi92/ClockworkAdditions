@@ -4,7 +4,7 @@ import com.github.guyapooye.clockworkadditions.ClockworkAdditions;
 import com.jozufozu.flywheel.core.PartialModel;
 
 public class PartialModelRegistry {
-    public static PartialModel BEARING_TOP = new PartialModel(ClockworkAdditions.asResource("block/kinetic_flap_bearing/top")),
+    public static final PartialModel BEARING_TOP = new PartialModel(ClockworkAdditions.asResource("block/kinetic_flap_bearing/top")),
                                PEDALS_BASE = new PartialModel(ClockworkAdditions.asResource("block/mechanical_pedals/block")),
                                PEDALS_CRANK = new PartialModel(ClockworkAdditions.asResource("block/mechanical_pedals/crank")),
                                PEDAL_LEFT = new PartialModel(ClockworkAdditions.asResource("block/mechanical_pedals/pedal_left")),
@@ -15,7 +15,9 @@ public class PartialModelRegistry {
                                CV_JOINT_ROD = new PartialModel(ClockworkAdditions.asResource("block/cv_joint/rod")),
                                INVERTED_RESISTOR_INDICATOR = new PartialModel(ClockworkAdditions.asResource("block/inverted_redstone_resistor/inverted_redstone_resistor")),
                                EXTENSIBLE_HOSE_CONNECTOR = new PartialModel(ClockworkAdditions.asResource("block/extensible_hose/connector")),
-                               EXTENSIBLE_HOSE_HOSE = new PartialModel(ClockworkAdditions.asResource("block/extensible_hose/hose"))
+                               EXTENSIBLE_HOSE_HOSE = new PartialModel(ClockworkAdditions.asResource("block/extensible_hose/hose")),
+                               AESTHETIC_BEARING_TOP = new PartialModel(ClockworkAdditions.asResource("block/aesthetic_bearing/top")),
+                               AESTHETIC_BEARING_COG = new PartialModel(ClockworkAdditions.asResource("block/aesthetic_bearing/cog"))
     ;
 
     public static void register() {}

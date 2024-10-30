@@ -9,8 +9,8 @@ import com.github.guyapooye.clockworkadditions.blocks.kinetics.cvjoint.CVJointBl
 import com.github.guyapooye.clockworkadditions.blocks.kinetics.handlebar.HandlebarBlock;
 import com.github.guyapooye.clockworkadditions.blocks.kinetics.invertedresistor.InvertedRedstoneResistorBlock;
 import com.github.guyapooye.clockworkadditions.blocks.kinetics.pedals.PedalsBlock;
-import com.github.guyapooye.clockworkadditions.blocks.phys.temp.BasePhysicsBearingBlock;
-import com.github.guyapooye.clockworkadditions.blocks.phys.helicopter.HelicopterBearingBlock;
+import com.github.guyapooye.clockworkadditions.blocks.phys.bearings.temp.BasePhysicsBearingBlock;
+import com.github.guyapooye.clockworkadditions.blocks.phys.bearings.aesthetic.AestheticBearingBlock;
 import com.github.guyapooye.clockworkadditions.blocks.redstone.gyro.RedstoneGyroBlock;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.content.kinetics.BlockStressDefaults;
@@ -43,15 +43,15 @@ public class BlockRegistry {
                     .simpleItem()
                     .lang("Helicopter Physics Bearing")
                     .register();
-    public static final BlockEntry<HelicopterBearingBlock> HELICOPTER_BEARING =
-            REGISTRATE.block("helicopter_bearing", HelicopterBearingBlock::new)
+    public static final BlockEntry<AestheticBearingBlock> AESTHETIC_BEARING =
+            REGISTRATE.block("aesthetic_bearing", AestheticBearingBlock::new)
                     .initialProperties(SharedProperties::stone)
                     .properties(BlockBehaviour.Properties::noOcclusion)
                     .transform(axeOrPickaxe())
                     .addLayer(() -> RenderType::cutoutMipped)
                     .blockstate(BlockStateGen.directionalBlockProvider(true))
                     .simpleItem()
-                    .lang("Helicopter Physics Bearing")
+                    .lang("Aesthetic Physics Bearing")
                     .register();
     public static final BlockEntry<KineticFlapBearingBlock> KINETIC_FLAP_BEARING =
             REGISTRATE.block("kinetic_flap_bearing", KineticFlapBearingBlock::new)

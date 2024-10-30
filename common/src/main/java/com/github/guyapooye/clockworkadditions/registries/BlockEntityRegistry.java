@@ -14,10 +14,10 @@ import com.github.guyapooye.clockworkadditions.blocks.kinetics.invertedresistor.
 import com.github.guyapooye.clockworkadditions.blocks.kinetics.pedals.PedalsBlockEntity;
 import com.github.guyapooye.clockworkadditions.blocks.kinetics.pedals.PedalsInstance;
 import com.github.guyapooye.clockworkadditions.blocks.kinetics.pedals.PedalsRenderer;
-import com.github.guyapooye.clockworkadditions.blocks.phys.temp.BasePhysicsBearingBlockEntity;
-import com.github.guyapooye.clockworkadditions.blocks.phys.helicopter.HelicopterBearingBlockEntity;
-import com.github.guyapooye.clockworkadditions.blocks.phys.helicopter.HelicopterBearingInstance;
-import com.github.guyapooye.clockworkadditions.blocks.phys.helicopter.HelicopterBearingRenderer;
+import com.github.guyapooye.clockworkadditions.blocks.phys.bearings.temp.BasePhysicsBearingBlockEntity;
+import com.github.guyapooye.clockworkadditions.blocks.phys.bearings.aesthetic.AestheticBearingBlockEntity;
+import com.github.guyapooye.clockworkadditions.blocks.phys.bearings.aesthetic.AestheticBearingInstance;
+import com.github.guyapooye.clockworkadditions.blocks.phys.bearings.aesthetic.AestheticBearingRenderer;
 import com.github.guyapooye.clockworkadditions.blocks.redstone.gyro.RedstoneGyroBlockEntity;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.architectury.injectables.annotations.ExpectPlatform;
@@ -29,11 +29,11 @@ public class BlockEntityRegistry {
             .blockEntity("base_bearing", BasePhysicsBearingBlockEntity::new)
             .validBlocks(BlockRegistry.BASE_BEARING)
             .register();
-    public static final BlockEntityEntry<HelicopterBearingBlockEntity> HELICOPTER_BEARING = REGISTRATE
-            .blockEntity("helicopter_bearing", HelicopterBearingBlockEntity::new)
-            .instance(() -> HelicopterBearingInstance::new)
-            .validBlocks(BlockRegistry.HELICOPTER_BEARING)
-            .renderer(() -> HelicopterBearingRenderer::new)
+    public static final BlockEntityEntry<AestheticBearingBlockEntity> AESTHETIC_BEARING = REGISTRATE
+            .blockEntity("aesthetic_bearing", AestheticBearingBlockEntity::new)
+            .instance(() -> AestheticBearingInstance::new)
+            .validBlocks(BlockRegistry.AESTHETIC_BEARING)
+            .renderer(() -> AestheticBearingRenderer::new)
             .register();
     public static final BlockEntityEntry<KineticFlapBearingBlockEntity> KINETIC_FLAP_BEARING = REGISTRATE
             .blockEntity("kinetic_flap_bearing", KineticFlapBearingBlockEntity::new)

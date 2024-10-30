@@ -36,16 +36,16 @@ public abstract class ExtensibleHoseBlockEntity<Tank> extends SmartBlockEntity {
     @Override
     protected void read(CompoundTag compound, boolean clientPacket) {
         super.read(compound, clientPacket);
-        isOrigin = compound.getBoolean("isOrigin");
-        target = NbtUtils.readBlockPos(compound.getCompound("target"));
+        isOrigin = compound.getBoolean("IsOrigin");
+        target = NbtUtils.readBlockPos(compound.getCompound("Target"));
     }
 
     @Override
     protected void write(CompoundTag compound, boolean clientPacket) {
         super.write(compound, clientPacket);
         if (target == null) return;
-        compound.putBoolean("isOrigin", isOrigin);
-        compound.put("target", NbtUtils.writeBlockPos(target));
+        compound.putBoolean("IsOrigin", isOrigin);
+        compound.put("Target", NbtUtils.writeBlockPos(target));
     }
 
     public void detach() {
@@ -91,11 +91,9 @@ public abstract class ExtensibleHoseBlockEntity<Tank> extends SmartBlockEntity {
             return;
         }
         if (isOrigin == other.isOrigin) isOrigin = !other.isOrigin;
-        PlatformUtil.runWhenOn(EnvType.SERVER,() -> {
-            if (getWorldSpace(this).sub(getWorldSpace(other)).lengthSquared() > Math.pow(ConfigRegistry.server().stretchables.hoseMaxLength.get(),2)) {
-                target = null;
-                other.target = null;
-            }
-        });
+        if (getWorldSpace(level,worldPosition).sub(getWorldSpace(other.level, other.worldPosition)).lengthSquared() > Math.pow(ConfigRegistry.server().stretchables.hoseMaxLength.get(),2)) {
+            target = null;
+            other.target = null;
+        }
     }
 }

@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "clockworkadditions:block/aesthetic_bearing",
+      "x": 180
+    },
+    "facing=up": {
+      "model": "clockworkadditions:block/aesthetic_bearing"
+    },
+    "facing=north": {
+      "model": "clockworkadditions:block/aesthetic_bearing",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "clockworkadditions:block/aesthetic_bearing",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west": {
+      "model": "clockworkadditions:block/aesthetic_bearing",
+      "x": 90,
+      "y": 270
+    },
+    "facing=east": {
+      "model": "clockworkadditions:block/aesthetic_bearing",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

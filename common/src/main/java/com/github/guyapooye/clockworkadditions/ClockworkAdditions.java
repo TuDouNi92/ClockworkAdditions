@@ -1,6 +1,7 @@
 package com.github.guyapooye.clockworkadditions;
 
 import com.github.guyapooye.clockworkadditions.registries.*;
+import com.github.guyapooye.clockworkadditions.util.NumberUtil;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.network.chat.TranslatableComponent;

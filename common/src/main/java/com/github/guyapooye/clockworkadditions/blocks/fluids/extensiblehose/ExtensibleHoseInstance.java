@@ -30,14 +30,12 @@ public class ExtensibleHoseInstance extends BlockEntityInstance<ExtensibleHoseBl
     final Direction facing;
 
     final GroupInstance<ModelData> hoses;
-//    final ConditionalInstance<ModelData> connector;
 
     public ExtensibleHoseInstance(MaterialManager materialManager, ExtensibleHoseBlockEntity blockEntity) {
         super(materialManager, blockEntity);
         facing = blockEntity.getBlockState().getValue(BlockStateProperties.FACING);
         Material<ModelData> mat = getTransformMaterial();
         hoses = new GroupInstance<>(mat.getModel(PartialModelRegistry.EXTENSIBLE_HOSE_HOSE));
-//        connector = new ConditionalInstance<>(mat.getModel(PartialModelRegistry.EXTENSIBLE_HOSE_CONNECTOR)).withCondition(() -> !disconnect && blockEntity.isOrigin);
     }
 
     @Override
@@ -62,7 +60,6 @@ public class ExtensibleHoseInstance extends BlockEntityInstance<ExtensibleHoseBl
                         .translateZ(0.25)
                 ;
                 relight(pos,hoses.get(0));
-//                connector.update();
             }
             return;
         }
@@ -71,7 +68,7 @@ public class ExtensibleHoseInstance extends BlockEntityInstance<ExtensibleHoseBl
             return;
         }
 
-        Vector3d dif = getShipToWorldClient(blockEntity, world).invert(new Matrix4d()).transformPosition(getWorldSpaceClient(other, world))
+        Vector3d dif = getShipToWorldClient(world, pos).invert(new Matrix4d()).transformPosition(getWorldSpaceClient(world, other.getBlockPos()))
                 .sub(VectorConversionsMCKt.toJOMLD(blockEntity.getBlockPos()).add(.5,.5,.5));
         double len = dif.length();
         Vector3d dir = dif.div(len, new Vector3d());
@@ -110,19 +107,6 @@ public class ExtensibleHoseInstance extends BlockEntityInstance<ExtensibleHoseBl
                 hose.scale(1, 1, (float) (len - i));
             }
         }
-//        connector.update().get().ifPresent(connector -> {
-//            connector.loadIdentity()
-//                    .translate(getInstancePosition())
-//                    .centre()
-//                    .transform(
-//                            bendMat,
-//                            new Matrix3f(0, 0, 0, 0, 0, 0, 0, 0, 0))
-//                    .rotateY(AngleHelper.horizontalAngle(facing))
-//                    .rotateX(AngleHelper.verticalAngle(facing) + 180)
-//                    .unCentre()
-//                    .translateZ(-len/2);
-//            relight(pos,connector);
-//        });
 
     }
 
@@ -130,7 +114,6 @@ public class ExtensibleHoseInstance extends BlockEntityInstance<ExtensibleHoseBl
     @Override
     public void remove() {
         hoses.clear();
-//        connector.delete();
     }
 
     @Override

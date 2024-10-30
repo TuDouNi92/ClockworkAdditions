@@ -23,6 +23,9 @@ import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import java.lang.Math;
 
+import static com.github.guyapooye.clockworkadditions.util.WorldspaceUtil.getShipToWorldClient;
+import static com.github.guyapooye.clockworkadditions.util.WorldspaceUtil.getWorldSpaceClient;
+
 
 public class CVJointInstance extends SingleRotatingInstance<CVJointBlockEntity> implements DynamicInstance {
 
@@ -118,7 +121,7 @@ public class CVJointInstance extends SingleRotatingInstance<CVJointBlockEntity> 
         ;
     }
     protected static Matrix4f getMatrix(CVJointBlockEntity blockEntity, CVJointBlockEntity other, Level world, Direction facing) {
-        org.joml.Vector3d dif = blockEntity.getShipToWorldClient(world).invert(new Matrix4d()).transformPosition(other.getWorldSpaceClient(world))
+        org.joml.Vector3d dif = getShipToWorldClient(world, blockEntity.getBlockPos()).invert(new Matrix4d()).transformPosition(getWorldSpaceClient(world,other.getBlockPos()))
                 .sub(VectorConversionsMCKt.toJOMLD(blockEntity.getBlockPos()).add(NumberUtil.blockPosOffset));
         double len = dif.length();
         org.joml.Vector3d dir = dif.div(len, new org.joml.Vector3d());
@@ -135,7 +138,7 @@ public class CVJointInstance extends SingleRotatingInstance<CVJointBlockEntity> 
         return VectorConversionsMCKt.toMinecraft(bendMat);
     }
     protected static double getLength(CVJointBlockEntity blockEntity, CVJointBlockEntity other, Level world) {
-        return blockEntity.getShipToWorldClient(world).invert(new Matrix4d()).transformPosition(other.getWorldSpaceClient(world))
+        return getShipToWorldClient(world, blockEntity.getBlockPos()).invert(new Matrix4d()).transformPosition(getWorldSpaceClient(world,other.getBlockPos()))
                 .sub(VectorConversionsMCKt.toJOMLD(blockEntity.getBlockPos()).add(NumberUtil.blockPosOffset)).length();
     }
 

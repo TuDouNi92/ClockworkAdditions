@@ -2,30 +2,44 @@ package com.github.guyapooye.clockworkadditions.blocks.kinetics.cvjoint;
 
 import com.github.guyapooye.clockworkadditions.registries.BlockRegistry;
 import com.github.guyapooye.clockworkadditions.registries.ConfigRegistry;
+import com.github.guyapooye.clockworkadditions.util.NumberUtil;
 import com.github.guyapooye.clockworkadditions.util.PlatformUtil;
+import com.github.guyapooye.clockworkadditions.util.WorldspaceUtil;
 import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.joml.*;
 import org.valkyrienskies.core.api.ships.ClientShip;
+import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.api.ships.Ship;
+import org.valkyrienskies.core.apigame.constraints.VSAttachmentConstraint;
+import org.valkyrienskies.core.apigame.constraints.VSConstraintAndId;
+import org.valkyrienskies.core.apigame.constraints.VSRopeConstraint;
+import org.valkyrienskies.core.apigame.constraints.VSSlideConstraint;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import java.util.List;
+import java.util.Map;
 
+import static com.github.guyapooye.clockworkadditions.util.WorldspaceUtil.getShipOrRigidBodyId;
+import static com.github.guyapooye.clockworkadditions.util.WorldspaceUtil.getWorldSpace;
 import static com.simibubi.create.content.kinetics.base.DirectionalKineticBlock.FACING;
 
 public class CVJointBlockEntity extends KineticBlockEntity {
 
     public BlockPos target;
     public boolean isOrigin;
+    private int jointId;
+    private boolean shouldRefresh;
 
     public CVJointBlockEntity(BlockEntityType<?> typeIn, BlockPos pos, BlockState state) {
         super(typeIn, pos, state);
@@ -34,16 +48,24 @@ public class CVJointBlockEntity extends KineticBlockEntity {
     @Override
     protected void read(CompoundTag compound, boolean clientPacket) {
         super.read(compound, clientPacket);
-        isOrigin = compound.getBoolean("isOrigin");
-        target = NbtUtils.readBlockPos(compound.getCompound("target"));
+        isOrigin = compound.getBoolean("IsOrigin");
+        target = NbtUtils.readBlockPos(compound.getCompound("Target"));
+        jointId = compound.getInt("Id");
+        shouldRefresh = true;
+    }
+    private void refresh() {
+        if (shouldRefresh) {
+            shouldRefresh = false;
+        }
     }
 
     @Override
     protected void write(CompoundTag compound, boolean clientPacket) {
         super.write(compound, clientPacket);
         if (target == null) return;
-        compound.putBoolean("isOrigin", isOrigin);
-        compound.put("target", NbtUtils.writeBlockPos(target));
+        compound.putBoolean("IsOrigin", isOrigin);
+        compound.putInt("Id", jointId);
+        compound.put("Target", NbtUtils.writeBlockPos(target));
     }
 
     @Override
@@ -60,30 +82,6 @@ public class CVJointBlockEntity extends KineticBlockEntity {
         float result = (other.target.equals(getBlockPos()) && this.target.equals(other.getBlockPos())) ? 1 : 0;
         if (stateFrom.getValue(FACING).getAxisDirection() == stateTo.getValue(FACING).getAxisDirection()) result *= -1;
         return result;
-    }
-
-    public Matrix4dc getShipToWorld() {
-        VSGameUtilsKt.getShipManagingPos(level, getBlockPos());
-        Ship ship = VSGameUtilsKt.getShipManagingPos(level, getBlockPos());
-        if (ship == null) return new Matrix4d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        return ship.getShipToWorld();
-    }
-
-    public Matrix4dc getShipToWorldClient(Level level) {
-        VSGameUtilsKt.getShipManagingPos(level, getBlockPos());
-        ClientShip ship = (ClientShip) VSGameUtilsKt.getShipManagingPos(level, getBlockPos());
-
-        if (ship == null) return new Matrix4d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        return ship.getRenderTransform().getShipToWorld();
-    }
-
-    public Vector3d getWorldSpace() {
-        BlockPos pos = getBlockPos();
-        return getShipToWorld().transformPosition(new Vector3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
-    }
-    public Vector3d getWorldSpaceClient(Level level) {
-        BlockPos pos = getBlockPos();
-        return getShipToWorldClient(level).transformPosition(new Vector3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
     }
 
     public void detach() {
@@ -112,6 +110,30 @@ public class CVJointBlockEntity extends KineticBlockEntity {
         attachKinetics();
         targ.attach(getBlockPos());
 
+        if(level.isClientSide) return;
+
+        ServerShip shipOn = VSGameUtilsKt.getShipManagingPos((ServerLevel) level,pos);
+
+        if (shipOn == null) return;
+
+        VSAttachmentConstraint constraint = new VSAttachmentConstraint(
+                getShipOrRigidBodyId(level, pos),
+                shipOn.getId(),
+                0,
+                VectorConversionsMCKt.toJOMLD(pos).add(NumberUtil.blockPosOffset),
+                VectorConversionsMCKt.toJOMLD(worldPosition).add(NumberUtil.blockPosOffset),
+                10E10,
+                ConfigRegistry.server().stretchables.cvJointMaxLength.get());
+
+        Integer constraintId = VSGameUtilsKt.getShipObjectWorld((ServerLevel) level).createNewConstraint(constraint);
+
+        if (constraintId == null) {
+            System.out.println("SOMETHING FUCKED UP");
+            return;
+        }
+//
+//        CVJointPhysData.CreateData createData = new CVJointPhysData.CreateData(new VSConstraintAndId(constraintId,constraint));
+//        CVJointPhysStorage.getOrCreate(shipOn).addInducer(createData);
     }
 
     @Override
@@ -128,14 +150,12 @@ public class CVJointBlockEntity extends KineticBlockEntity {
             return;
         };
         if (isOrigin == other.isOrigin) isOrigin = !other.isOrigin;
-        PlatformUtil.runWhenOn(EnvType.SERVER,() -> {
-            if (getWorldSpace().sub(other.getWorldSpace()).lengthSquared() > Mth.square(ConfigRegistry.server().stretchables.cvJointMaxLength.get())) {
-                target = null;
-                other.target = null;
-                detachKinetics();
-                other.detachKinetics();
-            }
-        });
+        if (getWorldSpace(level,worldPosition).sub(getWorldSpace(other.level, other.worldPosition)).lengthSquared() > Mth.square(ConfigRegistry.server().stretchables.cvJointMaxLength.get()+10)) {
+            target = null;
+            other.target = null;
+            detachKinetics();
+            other.detachKinetics();
+        }
     }
 
     @Override

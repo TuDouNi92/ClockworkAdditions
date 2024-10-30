@@ -1,8 +1,9 @@
-package com.github.guyapooye.clockworkadditions.blocks.phys.helicopter;
+package com.github.guyapooye.clockworkadditions.blocks.phys.bearings.aesthetic;
 
 import com.github.guyapooye.clockworkadditions.registries.BlockEntityRegistry;
 import com.github.guyapooye.clockworkadditions.registries.ShapesRegistry;
 import com.simibubi.create.content.contraptions.bearing.BearingBlock;
+import com.simibubi.create.content.kinetics.simpleRelays.ICogWheel;
 import com.simibubi.create.foundation.block.IBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,8 +20,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-public class HelicopterBearingBlock extends BearingBlock implements IBE<HelicopterBearingBlockEntity> {
-    public HelicopterBearingBlock(Properties properties) {
+public class AestheticBearingBlock extends BearingBlock implements IBE<AestheticBearingBlockEntity>, ICogWheel {
+    public AestheticBearingBlock(Properties properties) {
         super(properties);
     }
 
@@ -33,7 +34,7 @@ public class HelicopterBearingBlock extends BearingBlock implements IBE<Helicopt
             if (worldIn.isClientSide) {
                 return InteractionResult.SUCCESS;
             } else {
-                this.withBlockEntityDo(worldIn, pos, HelicopterBearingBlock::use);
+                this.withBlockEntityDo(worldIn, pos, AestheticBearingBlock::use);
                 return InteractionResult.SUCCESS;
             }
         } else {
@@ -42,14 +43,15 @@ public class HelicopterBearingBlock extends BearingBlock implements IBE<Helicopt
     }
 
     @Override
-    public Class<HelicopterBearingBlockEntity> getBlockEntityClass() {
-        return HelicopterBearingBlockEntity.class;
+    public Class<AestheticBearingBlockEntity> getBlockEntityClass() {
+        return AestheticBearingBlockEntity.class;
     }
 
     @Override
-    public BlockEntityType<? extends HelicopterBearingBlockEntity> getBlockEntityType() {
-        return BlockEntityRegistry.HELICOPTER_BEARING.get();
+    public BlockEntityType<? extends AestheticBearingBlockEntity> getBlockEntityType() {
+        return BlockEntityRegistry.AESTHETIC_BEARING.get();
     }
+
     @NotNull
     public Direction.Axis getRotationAxis(@NotNull BlockState state) {
         return (state.getValue(BearingBlock.FACING)).getAxis();
@@ -64,7 +66,7 @@ public class HelicopterBearingBlock extends BearingBlock implements IBE<Helicopt
         return face == (state.getValue(BearingBlock.FACING).getOpposite());
     }
 
-    private static void use(@NotNull HelicopterBearingBlockEntity te) {
+    private static void use(@NotNull AestheticBearingBlockEntity te) {
         if (!te.isRunning()) {
             te.setAssembleNextTick(true);
         }

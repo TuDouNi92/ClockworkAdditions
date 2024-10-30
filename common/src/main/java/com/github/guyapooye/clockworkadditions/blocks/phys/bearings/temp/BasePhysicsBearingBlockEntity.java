@@ -1,4 +1,4 @@
-package com.github.guyapooye.clockworkadditions.blocks.phys.temp;
+package com.github.guyapooye.clockworkadditions.blocks.phys.bearings.temp;
 
 import com.github.guyapooye.clockworkadditions.util.GlueAssembler;
 import com.simibubi.create.AllSoundEvents;
@@ -40,6 +40,7 @@ import org.valkyrienskies.mod.common.assembly.ShipAssemblyKt;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import java.lang.Math;
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -456,8 +457,8 @@ public class BasePhysicsBearingBlockEntity extends GeneratingKineticBlockEntity 
                     bearingPos = var48;
                     var46 = rotationQuaternion.mul(new Quaterniond(new AxisAngle4d(Math.toRadians(90.0), 0.0, 0.0, 1.0)), new Quaterniond()).normalize();
                     Objects.requireNonNull(var46, "normalize(...)");
-                    Quaterniondc hingeOrientation = var46;
-
+                    Quaterniond hingeOrientation = var46;
+                    System.out.println(hingeOrientation.toString(NumberFormat.getInstance()));
                     VSHingeOrientationConstraint hingeConstraint = new VSHingeOrientationConstraint(this.shiptraptionID, otherShipID, 0, hingeOrientation, hingeOrientation, Double.MAX_VALUE);
                     double extraDist = 1.0;
                     long var43 = this.shiptraptionID;

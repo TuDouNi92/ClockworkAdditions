@@ -1,4 +1,4 @@
-package com.github.guyapooye.clockworkadditions.blocks.phys.temp;
+package com.github.guyapooye.clockworkadditions.blocks.phys.bearings.temp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mojang.datafixers.util.Pair;

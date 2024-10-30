@@ -1,4 +1,4 @@
-package com.github.guyapooye.clockworkadditions.blocks.phys.helicopter;
+package com.github.guyapooye.clockworkadditions.blocks.phys.bearings.aesthetic;
 
 import com.github.guyapooye.clockworkadditions.util.GlueAssembler;
 import com.github.guyapooye.clockworkadditions.util.NumberUtil;
@@ -29,17 +29,15 @@ import org.valkyrienskies.core.impl.game.ships.ShipTransformImpl;
 import org.valkyrienskies.core.util.datastructures.DenseBlockPosSet;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.assembly.ShipAssemblyKt;
-import org.valkyrienskies.mod.common.item.ShipCreatorItem;
 import org.valkyrienskies.mod.common.util.VectorConversionsMCKt;
 
 import java.lang.Math;
-import java.text.NumberFormat;
 import java.util.Map;
 import java.util.Objects;
 
 import static com.github.guyapooye.clockworkadditions.util.NumberUtil.isBasicallyZeroF;
 
-public class HelicopterBearingBlockEntity extends GeneratingKineticBlockEntity implements IDisplayAssemblyExceptions, IBearingBlockEntity {
+public class AestheticBearingBlockEntity extends GeneratingKineticBlockEntity implements IDisplayAssemblyExceptions, IBearingBlockEntity {
 
     protected float angle;
     @Getter
@@ -48,12 +46,12 @@ public class HelicopterBearingBlockEntity extends GeneratingKineticBlockEntity i
     protected boolean assembleNextTick;
     protected AssemblyException lastException;
     @Getter
-    private long shiptraptionId = -1L;
+    protected long shiptraptionId = -1L;
     private boolean shouldRefresh;
     private boolean hasAssembled = false;
     private long lastSpeed;
 
-    public HelicopterBearingBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public AestheticBearingBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 
@@ -68,10 +66,11 @@ public class HelicopterBearingBlockEntity extends GeneratingKineticBlockEntity i
 
     @Override
     public float getGeneratedSpeed() {
-        Ship shiptraption = getShiptraption();
-        if (shiptraption == null) return 0;
-//        System.out.println((float) shiptraption.getOmega().length());
-        return lastSpeed;
+//        Ship shiptraption = getShiptraption();
+//        if (shiptraption == null) return 0;
+////        System.out.println((float) shiptraption.getOmega().length());
+//        return lastSpeed;
+        return 0;
     }
 
     public void tick() {
@@ -96,24 +95,24 @@ public class HelicopterBearingBlockEntity extends GeneratingKineticBlockEntity i
                 updateGeneratedRotation();
             };
             if (shouldRefresh && hasAssembled) {
-                HelicopterBearingController controller = HelicopterBearingController.getOrCreate(shiptraption);
-                HelicopterBearingData blockData = controller.getBlockData();
+                AestheticBearingController controller = AestheticBearingController.getOrCreate(shiptraption);
+                AestheticBearingData blockData = controller.data;
                 if (blockData != null) {
 
+                    boolean createdHingeConstraint = false,
+                            createdAttachConstraint = false;
+
                     Ship shipOn = VSGameUtilsKt.getShipManagingPos(level,worldPosition);
-                    Map<String, Long> idkwhatthisis = VSGameUtilsKt.getShipObjectWorld((ServerLevel) level).getDimensionToGroundBodyIdImmutable();
-                    long otherShipId = idkwhatthisis.get(VSGameUtilsKt.getDimensionId(level));
+                    Map<String, Long> dimensionPhysBody = VSGameUtilsKt.getShipObjectWorld((ServerLevel) level).getDimensionToGroundBodyIdImmutable();
+                    long otherShipId = dimensionPhysBody.get(VSGameUtilsKt.getDimensionId(level));
                     if (shipOn != null) {
                         otherShipId = shipOn.getId();
                     }
 
                     VSAttachmentConstraint attachConstraint = blockData.getAttachConstraint();
-                    VSHingeOrientationConstraint hingeConstraint = blockData.getHingeConstraint();
-                    boolean createdAttachConstraint = false;
-                    boolean createdHingeConstraint = false;
+
                     Vector3dc localPos1 = attachConstraint.getLocalPos0();
                     Vector3dc localPos2 = attachConstraint.getLocalPos1();
-                    Quaterniondc localRot1 = hingeConstraint.getLocalRot0();
 
                     VSAttachmentConstraint newAttachConstraint = new VSAttachmentConstraint(
                             shiptraptionId,
@@ -124,29 +123,38 @@ public class HelicopterBearingBlockEntity extends GeneratingKineticBlockEntity i
                             10E10,
                             0
                     );
+
+
                     Integer attachId = VSGameUtilsKt.getShipObjectWorld((ServerLevel)level).createNewConstraint(newAttachConstraint);
-                    if (attachId != null) createdAttachConstraint = true;
+
+
+                    VSHingeOrientationConstraint hingeConstraint = blockData.getHingeConstraint();
+
+                    Quaterniond localOrientation = (Quaterniond) hingeConstraint.getLocalRot0();
 
                     VSHingeOrientationConstraint newHingeConstraint = new VSHingeOrientationConstraint(
                             shiptraptionId,
                             otherShipId,
                             0,
-                            localRot1,
-                            localRot1,
+                            localOrientation,
+                            localOrientation,
                             10E10
                     );
+
+
                     Integer hingeId = VSGameUtilsKt.getShipObjectWorld((ServerLevel)level).createNewConstraint(newHingeConstraint);
+
                     if (hingeId != null) createdHingeConstraint = true;
-                    HelicopterBearingData.AlternatorBearingUpdateData updateData = new HelicopterBearingData.AlternatorBearingUpdateData(
+                    if (attachId != null) createdAttachConstraint = true;
+
+                    AestheticBearingData.AlternatorBearingUpdateData updateData = new AestheticBearingData.AlternatorBearingUpdateData(
                             attachConstraint,
                             attachId,
                             hingeConstraint,
-                            hingeId);
-                    controller.updateBlock(updateData);
-                    if (createdAttachConstraint && createdHingeConstraint) {
-                        shouldRefresh = false;
-                        VSGameUtilsKt.getShipObjectWorld((ServerLevel)level).removeConstraint(hingeId);
-                    }
+                            hingeId
+                    );
+                    controller.updateInducer(updateData);
+                    if (createdAttachConstraint && createdHingeConstraint) shouldRefresh = false;
                 }
             }
         }
@@ -184,19 +192,20 @@ public class HelicopterBearingBlockEntity extends GeneratingKineticBlockEntity i
         if (level.isClientSide) return;
         Ship shipOn = VSGameUtilsKt.getShipManagingPos(level,worldPosition);
 
-        Map<String, Long> idkwhatthisis = VSGameUtilsKt.getShipObjectWorld((ServerLevel) level).getDimensionToGroundBodyIdImmutable();
-        long otherShipId = idkwhatthisis.get(VSGameUtilsKt.getDimensionId(level));
+        Map<String, Long> dimensionToPhysBody = VSGameUtilsKt.getShipObjectWorld((ServerLevel) level).getDimensionToGroundBodyIdImmutable();
+        long otherShipId = dimensionToPhysBody.get(VSGameUtilsKt.getDimensionId(level));
 
-        Vector3d posInWorld = VectorConversionsMCKt.toJOMLD(worldPosition).add(NumberUtil.blockPosOffset);
+        Vector3d posInWorld = VectorConversionsMCKt.toJOMLD(worldPosition).add(.5,.5,.5);
         Vector3d normalInWorld = VectorConversionsMCKt.toJOMLD(getBlockState().getValue(BearingBlock.FACING).getNormal());
-        Vector3d axis = normalInWorld;
+        Vector3d axis = new Vector3d(normalInWorld);
         Quaterniond rotationInWorld = new Quaterniond();
         int shipChunkX = shiptraption.getChunkClaim().getXMiddle();
         int shipChunkZ = shiptraption.getChunkClaim().getZMiddle();
-        Vector3dc centerInShip = new Vector3d((shipChunkX << 4) + (center.getX() & 15), center.getY(), (shipChunkZ << 4) + (center.getZ() & 15)).add(NumberUtil.blockPosOffset);
+        Vector3d centerInShip = new Vector3d((shipChunkX << 4) + (center.getX() & 15), center.getY(), (shipChunkZ << 4) + (center.getZ() & 15)).add(NumberUtil.blockPosOffset);
         Vector3d scaling = new Vector3d(1);
-        Vector3d posInOwnerShip = posInWorld.add(normalInWorld,new Vector3d());
-        Vector3d weirdAssFix = new Vector3d(.5,0.25,.5);
+        Vector3d posInOwnerShip = posInWorld.add(normalInWorld, new Vector3d());
+        posInOwnerShip.fma(-.5,axis);
+        centerInShip.fma(-.5,axis);
         if (shipOn != null) {
             otherShipId = shipOn.getId();
             shipOn.getShipToWorld().transformPosition(posInWorld);
@@ -206,29 +215,33 @@ public class HelicopterBearingBlockEntity extends GeneratingKineticBlockEntity i
             scaling = (Vector3d) shipOn.getTransform().getShipToWorldScaling();
             rotationInWorld = (Quaterniond) shipOn.getTransform().getShipToWorldRotation();
         }
-        Quaterniond orientationInWorld = new Vector3d(1,0,0).rotationTo(normalInWorld, new Quaterniond());
+//        Vector3d blockPosOffset = rotationInWorld.transform(NumberUtil.blockPosOffset);
+        Quaterniond localOrientation = new Vector3d(1,0,0).rotationTo(axis, new Quaterniond());
         ShipDataCommon shipDataCommon = (ShipDataCommon)shiptraption;
         shipDataCommon.setTransform(ShipTransformImpl.Companion.create(posInWorld.add(normalInWorld,new Vector3d()), shiptraption.getInertiaData().getCenterOfMassInShip(), rotationInWorld, scaling));
-        Vector3d transformedCenterInShip = centerInShip.fma(-1, normalInWorld, new Vector3d());
-        Vector3d transformedPosInOwnerShip = posInOwnerShip.fma(-1, normalInWorld, new Vector3d()).round();
-        System.out.println("bearingPos:"+transformedCenterInShip.toString(NumberFormat.getInstance()));
-        System.out.println("posInOwnerShip:"+transformedPosInOwnerShip.toString(NumberFormat.getInstance()));
-        VSAttachmentConstraint attachmentConstraint = new VSAttachmentConstraint(shiptraptionId,otherShipId,0,transformedCenterInShip,transformedPosInOwnerShip,10E10,0);
-        VSHingeOrientationConstraint hingeOrientationConstraint = new VSHingeOrientationConstraint(shiptraptionId,otherShipId,0,orientationInWorld,orientationInWorld,10E10);
+
+
+
+        VSAttachmentConstraint attachmentConstraint = new VSAttachmentConstraint(shiptraptionId,otherShipId,0,centerInShip,posInOwnerShip,10E10,0);
         Integer attachId = VSGameUtilsKt.getShipObjectWorld((ServerLevel)level).createNewConstraint(attachmentConstraint);
+
+        VSHingeOrientationConstraint hingeOrientationConstraint = new VSHingeOrientationConstraint(shiptraptionId,otherShipId,0,localOrientation, localOrientation,10E10);
         Integer hingeId = VSGameUtilsKt.getShipObjectWorld((ServerLevel)level).createNewConstraint(hingeOrientationConstraint);
-        if (attachId == null || hingeId == null) return;
+
+        if (attachId == null && hingeId == null) return;
+
         VSConstraintAndId attachConstraint = new VSConstraintAndId(attachId,attachmentConstraint);
-        VSConstraintAndId hingeConstraint = new VSConstraintAndId(hingeId, hingeOrientationConstraint);
-        VSGameUtilsKt.getShipObjectWorld((ServerLevel)level).removeConstraint(hingeId);
-        HelicopterBearingController controller = HelicopterBearingController.getOrCreate(shiptraption);
-        HelicopterBearingData createData = new HelicopterBearingData(
+        VSConstraintAndId hingeConstraint = new VSConstraintAndId(hingeId,hingeOrientationConstraint);
+
+//        VSGameUtilsKt.getShipObjectWorld((ServerLevel)level).removeConstraint(attachId);
+        AestheticBearingController controller = AestheticBearingController.getOrCreate(shiptraption);
+        controller.data = new AestheticBearingData(
                 posInWorld,
                 normalInWorld,
                 shiptraptionId,
                 attachConstraint,
-                hingeConstraint);
-        controller.addBlock(createData);
+                hingeConstraint
+        );
         hasAssembled = true;
     }
     public void write(@NotNull CompoundTag compound, boolean clientPacket) {
@@ -257,13 +270,13 @@ public class HelicopterBearingBlockEntity extends GeneratingKineticBlockEntity i
         if (shiptraptionId == -1L || !hasAssembled || level.isClientSide) return;
         ServerShip ship = (ServerShip) getShiptraption();
         if (ship == null) return;
-        HelicopterBearingController controller = HelicopterBearingController.getOrCreate(ship);
-        HelicopterBearingData blockData = controller.getBlockData();
+        AestheticBearingController controller = AestheticBearingController.getOrCreate(ship);
+        AestheticBearingData blockData = controller.data;
         Integer attachId = blockData.getAttachId();
         Integer hingeId = blockData.getHingeId();
         if (attachId != null) VSGameUtilsKt.getShipObjectWorld((ServerLevel)level).removeConstraint(attachId);
         if (hingeId != null) VSGameUtilsKt.getShipObjectWorld((ServerLevel)level).removeConstraint(hingeId);
-        controller.removeBlock();
+        controller.clearInducer();
     }
 
     public void lazyTick() {
