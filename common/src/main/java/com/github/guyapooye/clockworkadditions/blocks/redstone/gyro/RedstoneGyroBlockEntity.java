@@ -136,23 +136,24 @@ public class RedstoneGyroBlockEntity extends SmartBlockEntity {
         shipUp = ship.getTransform().getShipToWorldRotation().transform(worldUp, new Vector3d());
         double errorAngle = shipUp.angle(worldUp);
 //        System.out.println(errorAngle);
-        Vector3d proportionalVector = ship.getTransform().getShipToWorldRotation().transformInverse(worldUp, new Vector3d());
+        Vector3d proportionalVector = ship.getTransform().getShipToWorldRotation().transformInverse(worldUp, new Vector3d()).mul(ConfigRegistry.server().redstone.gyro.P.getF(), new Vector3d());
         System.out.println("Proportional: "+ proportionalVector);
         double x1 = proportionalVector.x;
         double z1 = proportionalVector.z;
 //        System.out.println("first X1: " + x1);
 //        System.out.println("first Z1: " + z1);
         proportionalVector.normalize(-errorAngle/400);
-        integralVector = integralVector.add(new Vector3d(isNaN(proportionalVector.x),isNaN(proportionalVector.y),isNaN(proportionalVector.z)));
+        integralVector = integralVector.add(new Vector3d(isNaN(proportionalVector.x),isNaN(proportionalVector.y),isNaN(proportionalVector.z))).mul(ConfigRegistry.server().redstone.gyro.I.getF(), new Vector3d());
         System.out.println("Integral: "+ integralVector);
         x1 += integralVector.x;
         z1 += integralVector.z;
 //        System.out.println("second X1: " + x1);
 //        System.out.println("second Z1: " + z1);
-        Vector3d errorDerivative = lastTransformedUp.sub(proportionalVector).mul(20, new Vector3d());
+        Vector3d errorDerivative = lastTransformedUp.sub(proportionalVector).mul(ConfigRegistry.server().redstone.gyro.D.getF(), new Vector3d());
         System.out.println("Derivative:" + errorDerivative);
         x1 += errorDerivative.x;
-        z1 += errorDerivative.y;
+        //What the fk?Adding y to z?
+        z1 += errorDerivative.z;
 //        System.out.println("X: "+x1);
 //        System.out.println("Z: "+z1);
         writeSignalsPID(x1,z1);
